@@ -3,7 +3,6 @@
 
 RPLidar lidar;
 
-/* ===== PINES PUENTE H ===== */
 #define ENA 8
 #define IN1 9
 #define IN2 10
@@ -11,33 +10,27 @@ RPLidar lidar;
 #define IN4 12
 #define ENB 13
 
-/* ===== DIMENSIONES VEHÍCULO (cm) ===== */
 #define LIDAR_FRENTE 12
 #define LIDAR_LADO   12
 
-/* ===== SEGURIDAD ===== */
 #define DIST_FRENTE_CRITICA 25
 #define DIST_FRENTE        38
 #define DIST_LADO          30
 
-/* ===== MOVIMIENTO ===== */
 #define VELOCIDAD 135
 #define GIRO_VELOCIDAD 110
 
-/* ===== TIEMPOS ===== */
 #define T_PARADA     120
 #define T_RETROCESO  550
 #define T_GIRO       650
 #define T_SALIDA     500
 
-/* ===== MODOS ===== */
 bool modo_auto = false;
 char comando_manual = 'S';
 
-/* ===== ESTADO AUTO ===== */
 String estado_auto = "detenido";
 
-/* ===== ESTADOS AUTÓNOMO ===== */
+
 enum EstadoAuto {
   AVANZAR,
   PARAR,
@@ -50,14 +43,13 @@ EstadoAuto estado = AVANZAR;
 unsigned long t_estado = 0;
 bool giro_izq = true;
 
-/* ===== LIDAR ===== */
 float dF = 9999, dL = 9999, dR = 9999;
 unsigned long t_lidar = 0;
 
 void setup() {
-  Serial.begin(9600);      // Interfaz
-  Serial1.begin(115200);  // RPLIDAR
-  Serial2.begin(9600);    // GPS
+  Serial.begin(9600);     
+  Serial1.begin(115200);  
+  Serial2.begin(9600);    
 
   lidar.begin(Serial1);
   lidar.stop();
@@ -87,7 +79,7 @@ void loop() {
   enviar_estado_auto();
 }
 
-/* ============ COMANDOS INTERFAZ ============ */
+
 void recibir_comandos() {
   if (Serial.available()) {
     char c = Serial.read();
@@ -103,7 +95,7 @@ void reenviar_gps() {
   }
 }
 
-/* ============ LIDAR ============ */
+
 void procesar_lidar() {
 
   if (millis() - t_lidar > 100) {
@@ -113,7 +105,7 @@ void procesar_lidar() {
 
   if (IS_OK(lidar.waitPoint())) {
 
-    float d = lidar.getCurrentPoint().distance / 10.0; // mm → cm
+    float d = lidar.getCurrentPoint().distance / 10.0; 
     float a = lidar.getCurrentPoint().angle;
 
     if (d > 0 && d < 200) {
@@ -122,7 +114,7 @@ void procesar_lidar() {
       if (a >= 125 && a <= 210) dL = min(dL, d);
       if (a >= 0 && a <= 55) dR = min(dR, d);
 
-      // ===== ENVÍO LIDAR A INTERFAZ =====
+
       float x = -d * sin(a * DEG_TO_RAD);
       float y = -d * cos(a * DEG_TO_RAD);
 
@@ -137,7 +129,7 @@ void procesar_lidar() {
   }
 }
 
-/* ============ AUTÓNOMO (ANTI-CHOQUE) ============ */
+
 void autonomo() {
 
   switch (estado) {
@@ -198,7 +190,6 @@ void autonomo() {
   }
 }
 
-/* ============ MANUAL ============ */
 void manual() {
   switch (comando_manual) {
     case 'F': avanzar(); break;
@@ -209,7 +200,6 @@ void manual() {
   }
 }
 
-/* ============ MOVIMIENTO ============ */
 void avanzar() {
   estado_auto = "adelante";
   analogWrite(ENA, VELOCIDAD);
@@ -264,7 +254,6 @@ void detener() {
   analogWrite(ENB, 0);
 }
 
-/* ============ ESTADO PARA INTERFAZ ============ */
 void enviar_estado_auto() {
   static unsigned long t = 0;
   if (millis() - t > 300) {
