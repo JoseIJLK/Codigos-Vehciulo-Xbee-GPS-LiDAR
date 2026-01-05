@@ -81,7 +81,6 @@ def leer_serial():
         except:
             pass
 
-
 def procesar_linea(line):
     global ultimo_gps, obstaculo_mas_cercano, direccion_auto
 
@@ -420,4 +419,5 @@ tk.Button(bottom, text="Salir", bg="red", fg="white",
 
 root.after(200, actualizar)
 root.mainloop()
+
 
