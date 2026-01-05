@@ -4,8 +4,7 @@ from tkintermapview import TkinterMapView
 import serial, json, threading, queue, time, csv, os, math
 from datetime import datetime
 
-# ================= CONFIGURACIÓN =================
-UMBRAL_ALERTA = 40  # cm
+UMBRAL_ALERTA = 40  
 
 ESCALA_LIDAR = 2.5
 ESCALA_MIN = 0.8
@@ -19,7 +18,7 @@ MAX_PUNTOS_TRAYECTORIA = 500
 MAX_NUBE = 3000
 
 modo_auto = False
-modo_lidar_nube = False     # <<< NUEVO
+modo_lidar_nube = False    
 ultima_direccion = "S"
 
 DIRECCIONES_MANUAL = {
@@ -40,7 +39,7 @@ stop_serial_thread = threading.Event()
 trayectoria = []
 ultimo_gps = None
 obstaculo_mas_cercano = None
-nube_lidar = []             # <<< NUEVO
+nube_lidar = []            
 
 tomando_datos = False
 registro_temporal = []
@@ -53,7 +52,6 @@ tiempo_inicio_registro = None
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CSV_PATH = None
 
-# ================= SERIAL =================
 def abrir_conexion_serial(puerto, baud=9600):
     global xbee_serial
     try:
@@ -83,7 +81,7 @@ def leer_serial():
         except:
             pass
 
-# ================= PARSEO =================
+
 def procesar_linea(line):
     global ultimo_gps, obstaculo_mas_cercano, direccion_auto
 
@@ -123,7 +121,7 @@ def procesar_linea(line):
             except:
                 pass
 
-# ================= COMANDOS =================
+
 def enviar_comando(cmd):
     global ultima_direccion
     ultima_direccion = cmd
@@ -133,7 +131,6 @@ def enviar_comando(cmd):
         except:
             pass
 
-# ================= MODO =================
 def cambiar_modo():
     global modo_auto
     modo_auto = not modo_auto
@@ -144,7 +141,7 @@ def cambiar_modo():
         modo_label.config(text="Modo: Manual", fg="blue")
         enviar_comando("M")
 
-# ================= MODO LIDAR =================
+
 def cambiar_modo_lidar():
     global modo_lidar_nube
 
@@ -168,7 +165,7 @@ def zoom_menos():
     if ESCALA_LIDAR > ESCALA_MAX:
         ESCALA_LIDAR = ESCALA_MAX
 
-# ================= TECLADO =================
+
 def tecla_presionada(event):
     if not modo_auto:
         mapa = {"Up": "F", "Down": "B", "Left": "L", "Right": "R"}
@@ -179,7 +176,7 @@ def tecla_suelta(event):
     if not modo_auto:
         enviar_comando("S")
 
-# ================= REGISTRO =================
+
 def iniciar_registro():
     global tomando_datos, ultimo_registro, CSV_PATH, tiempo_inicio_registro
 
@@ -213,7 +210,7 @@ def detener_registro():
     timer_label.config(text="")
     messagebox.showinfo("Registro", f"CSV guardado en:\n{CSV_PATH}")
 
-# ================= LIDAR =================
+
 def dibujar_lidar():
     lidar_canvas.update_idletasks()
     w, h = lidar_canvas.winfo_width(), lidar_canvas.winfo_height()
@@ -223,7 +220,7 @@ def dibujar_lidar():
     lidar_canvas.delete("all")
     cx, cy = w / 2, h / 2
 
-    # ========= MODO RADAR =========
+
     if not modo_lidar_nube:
         for r in [50, 100, 150, 200]:
             rr = r / ESCALA_LIDAR
@@ -246,7 +243,7 @@ def dibujar_lidar():
             lidar_canvas.create_text(px, py-14,
                                      text=f"{int(dist)} cm", fill="white")
 
-    # ========= MODO NUBE =========
+
     else:
         for x, y in nube_lidar:
             px = cx + x / ESCALA_LIDAR
@@ -258,7 +255,7 @@ def dibujar_lidar():
                 lidar_canvas.create_oval(px-1, py-1, px+1, py+1,
                                           fill=color, outline="")
 
-# ================= MAPA =================
+
 def dibujar_mapa():
     global marker_actual, path_actual
     if not ultimo_gps:
@@ -284,7 +281,7 @@ def dibujar_mapa():
                 path_actual.delete()
             path_actual = mapa_widget.set_path(trayectoria)
 
-# ================= LOOP =================
+
 def actualizar():
     global ultimo_registro
 
@@ -334,9 +331,9 @@ def salir():
     cerrar_conexion_serial()
     root.destroy()
 
-# ================= UI =================
+
 root = tk.Tk()
-root.title("Vehículo Autónomo")
+root.title("VEHICULO LIDAR GPS")
 root.attributes("-fullscreen", True)
 
 root.bind("<Escape>", lambda e: root.attributes("-fullscreen", False))
@@ -409,7 +406,6 @@ status_label.pack(side="left", padx=10)
 timer_label = tk.Label(control, text="", font=("Arial",12,"bold"))
 timer_label.pack(side="left", padx=10)
 
-# REGISTRO
 bottom = tk.Frame(main)
 bottom.pack(pady=5)
 
@@ -424,3 +420,4 @@ tk.Button(bottom, text="Salir", bg="red", fg="white",
 
 root.after(200, actualizar)
 root.mainloop()
+
