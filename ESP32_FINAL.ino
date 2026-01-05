@@ -2,16 +2,16 @@
 
 TinyGPSPlus gps;
 
-// GPS en UART1
+
 HardwareSerial gpsSerial(1);
-// Comunicación con Arduino en UART2
+
 HardwareSerial arduinoSerial(2);
 
 void setup() {
   Serial.begin(115200);
 
-  gpsSerial.begin(9600, SERIAL_8N1, 16, 17);     // GPS
-  arduinoSerial.begin(9600, SERIAL_8N1, 4, 2);  // ESP32 → Arduino
+  gpsSerial.begin(9600, SERIAL_8N1, 16, 17);   
+  arduinoSerial.begin(9600, SERIAL_8N1, 4, 2);  
 
   Serial.println("ESP32 GPS iniciado");
 }
