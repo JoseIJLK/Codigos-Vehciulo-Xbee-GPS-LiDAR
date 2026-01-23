@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox
 from tkintermapview import TkinterMapView
 import serial, json, threading, queue, time, csv, os, math
 from datetime import datetime
+from tkinter import filedialog
 
 UMBRAL_ALERTA = 40  
 
@@ -194,20 +195,39 @@ def iniciar_registro():
 
 def detener_registro():
     global tomando_datos, tiempo_inicio_registro
+
     tomando_datos = False
     tiempo_inicio_registro = None
 
-    with open(CSV_PATH, "w", newline="") as f:
+    ruta = filedialog.asksaveasfilename(
+        title="Guardar registro CSV",
+        defaultextension=".csv",
+        filetypes=[("Archivo CSV", "*.csv")],
+        initialfile=f"registro_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    )
+
+    if not ruta:
+        messagebox.showwarning(
+            "Registro cancelado",
+            "No se guardó el archivo porque no se seleccionó una ubicación."
+        )
+        return
+
+    with open(ruta, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow([
-            "hora","latitud","longitud","altitud",
-            "modo","direccion_manual",
-            "estado_obstaculo","distancia_obstaculo_cm"
+            "hora", "latitud", "longitud", "altitud",
+            "modo", "direccion_manual",
+            "estado_obstaculo", "distancia_obstaculo_cm"
         ])
         writer.writerows(registro_temporal)
 
     timer_label.config(text="")
-    messagebox.showinfo("Registro", f"CSV guardado en:\n{CSV_PATH}")
+    messagebox.showinfo(
+        "Registro guardado",
+        f"Archivo CSV guardado correctamente en:\n{ruta}"
+    )
+
 
 
 def dibujar_lidar():
@@ -419,5 +439,6 @@ tk.Button(bottom, text="Salir", bg="red", fg="white",
 
 root.after(200, actualizar)
 root.mainloop()
+
 
 
